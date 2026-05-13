@@ -49,7 +49,7 @@ namespace LibraryInfrastructure.Repositories
         {
             return await _context.Staffs
                 .Include(s => s.Account)
-                .Where(s => s.Account.Role == role && !s.IsDeleted)
+                .Where(s => s.Account.Role == role)
                 .ToListAsync();
         }
 

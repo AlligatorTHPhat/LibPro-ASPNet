@@ -48,13 +48,8 @@ const StaffManagement = () => {
         if (window.confirm(`Are you sure you want to ${action} staff member ${staff.fullName}?`)) {
             try {
                 if (staff.isDeleted) {
-                    await adminApi.updateStaff(staff.id, {
-                        fullName: staff.fullName,
-                        phoneNumber: staff.phoneNumber,
-                        isDeleted: false
-                    });
+                    await adminApi.restoreStaff(staff.id);
                 } else {
-                    // Xóa logic (Deactivate)[cite: 25, 28]
                     await adminApi.deleteStaff(staff.id);
                 }
                 loadStaffs();

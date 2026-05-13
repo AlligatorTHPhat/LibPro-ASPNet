@@ -11,17 +11,23 @@ namespace LibraryApplication.Services
 {
     public class StaffService : IStaffService
     {
+        private readonly IAuditRepository _auditRepository;
+        private readonly ICurrentUserService _currentUserService;
         private readonly IStaffRepository _staffRepository;
         private readonly IAccountRepository _accountRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
         public StaffService(
+            IAuditRepository auditRepository,
+            ICurrentUserService currentUserService,
             IStaffRepository staffRepository,
             IAccountRepository accountRepository,
             IUnitOfWork unitOfWork,
             IMapper mapper)
         {
+            _auditRepository = auditRepository;
+            _currentUserService = currentUserService;
             _staffRepository = staffRepository;
             _accountRepository = accountRepository;
             _unitOfWork = unitOfWork;
@@ -75,7 +81,7 @@ namespace LibraryApplication.Services
 
         public async Task<IEnumerable<StaffResponse>> GetAllStaffsAsync()
         {
-            var staffs = await _staffRepository.GetAllAsync();
+            var staffs = await _staffRepository.GetByRoleAsync(UserRole.Librarian);
             return _mapper.Map<IEnumerable<StaffResponse>>(staffs);
         }
 
@@ -84,13 +90,22 @@ namespace LibraryApplication.Services
             var staff = await _staffRepository.GetByIdAsync(id);
             if (staff == null) throw new EntityNotFoundException("Staff", id);
 
-            // Tạo Value Object Address mới từ Request
             var newAddress = new LibraryDomain.ValueObjects.Address(
                 request.Street, request.Ward, request.District, request.City);
 
-            // Cập nhật thông qua phương thức của Entity (Domain Driven)
             staff.UpdateInfo(request.FullName, newAddress, request.PhoneNumber, request.IsDeleted);
             _staffRepository.Update(staff);
+
+            var auditLog = new AuditLog(
+                _currentUserService.UserId,
+                _currentUserService.Username,
+                "Update Staff",
+                "System",
+                "Auth",
+                string.Empty,
+                $"Staff profile updated at {DateTime.Now}"
+            );
+            await _auditRepository.AddAsync(auditLog);
             await _unitOfWork.SaveChangesAsync();
         }
 
@@ -106,12 +121,19 @@ namespace LibraryApplication.Services
             _staffRepository.Update(staff);
 
             var account = await _accountRepository.GetByIdAsync(staff.AccountId);
-            if (account != null)
-            {
-                account.SetStatus(true);
-                _accountRepository.Update(account);
-            }
+            account.Deactivate();
+            
+            var auditLog = new AuditLog(
+                _currentUserService.UserId,
+                _currentUserService.Username,
+                "Delete Staff",
+                "System",
+                "Auth",
+                string.Empty,
+                $"Staff deleted at {DateTime.Now}"
+            );
 
+            await _auditRepository.AddAsync(auditLog);
             await _unitOfWork.SaveChangesAsync();
         }
 
@@ -124,11 +146,18 @@ namespace LibraryApplication.Services
             _staffRepository.Update(staff);
 
             var account = await _accountRepository.GetByIdAsync(staff.AccountId);
-            if (account != null)
-            {
-                account.SetStatus(false);
-                _accountRepository.Update(account);
-            }
+            account.Activate();
+
+            var auditLog = new AuditLog(
+                _currentUserService.UserId,
+                _currentUserService.Username,
+                "Restore Staff",
+                "System",
+                "Auth",
+                string.Empty,
+                $"Staff restored at {DateTime.Now}"
+            );
+            await _auditRepository.AddAsync(auditLog);
             await _unitOfWork.SaveChangesAsync();
         }
 

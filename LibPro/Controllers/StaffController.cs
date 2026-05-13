@@ -41,14 +41,14 @@ namespace LibPro.Controllers
         public async Task<IActionResult> Delete(Guid id)
         {
             await _staffService.DeleteStaffAsync(id);
-            return NoContent();
+            return Ok(new { message = "Librarian deactived and Account locked successfully." });
         }
 
         [HttpPut("{id}/restore")]
         public async Task<IActionResult> Restore(Guid id)
         {
             await _staffService.RestoreStaffAsync(id);
-            return NoContent();
+            return Ok(new { message = "Librarian actived and Account restored successfully." });
         }
     }
 }

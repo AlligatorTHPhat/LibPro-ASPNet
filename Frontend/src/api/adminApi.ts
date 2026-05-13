@@ -16,7 +16,7 @@ export const adminApi = {
     registerLibrarian: (data: any) => api.post('Auth/register-librarian', data),
     updateStaff: (id: string, data: any) => api.put(`/Staffs/${id}`, data),
     deleteStaff: (id: string) => api.delete(`/Staffs/${id}`),
-    restoreStaff: (id: string, currentData: any) => api.put(`/Staffs/${id}`, { ...currentData, isDeleted: false }),
+    restoreStaff: (id: string) => api.put(`/Staffs/${id}/restore`),
 
     getAllLogs: () => api.get('/Audit'),
     getHistory: (entity: string, id: string) => api.get(`/Audit/history/${entity}/${id}`)

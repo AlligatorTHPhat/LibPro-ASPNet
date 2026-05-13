@@ -143,11 +143,7 @@ namespace LibraryApplication.Services
             _readerRepository.Delete(reader);
 
             var account = await _accountRepository.GetByIdAsync(reader.AccountId);
-            if (account != null)
-            {
-                account.SetStatus(true);
-                _accountRepository.Update(account);
-            }
+            account.Deactivate();
 
             var auditLog = new AuditLog(
                 _currentUserService.UserId,
@@ -172,11 +168,7 @@ namespace LibraryApplication.Services
             _readerRepository.Update(reader);
 
             var account = await _accountRepository.GetByIdAsync(reader.AccountId);
-            if (account != null)
-            {
-                account.SetStatus(false);
-                _accountRepository.Update(account);
-            }
+            account.Activate();
 
             var auditLog = new AuditLog(
                 _currentUserService.UserId,
@@ -185,7 +177,7 @@ namespace LibraryApplication.Services
                 "System",
                 "Auth",
                 string.Empty,
-                $"Reader deleted at {DateTime.Now}"
+                $"Reader restored at {DateTime.Now}"
             );
 
             await _auditRepository.AddAsync(auditLog);

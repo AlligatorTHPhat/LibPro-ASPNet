@@ -6,7 +6,7 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData }: any) => {
         password: '',
         email: '',
         fullName: '',
-        gender: 1, // 1: Male, 2: Female dựa trên Gender ValueObject
+        gender: 1,
         dateOfBirth: '',
         street: '',
         ward: '',
@@ -87,7 +87,7 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData }: any) => {
                                 <label>Gender:</label>
                                 <select value={formData.gender} onChange={e => setFormData({ ...formData, gender: parseInt(e.target.value) })}>
                                     <option value={1}>Male</option>
-                                    <option value={2}>Female</option>
+                                    <option value={0}>Female</option>
                                 </select>
                             </div>
                         </div>

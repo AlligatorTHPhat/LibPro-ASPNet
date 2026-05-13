@@ -65,9 +65,6 @@ const ReaderManagement = () => {
                     <h2 style={{ color: 'var(--accent)' }}>Reader Management</h2>
                     <p style={{ fontSize: '0.9rem', color: 'var(--text)' }}>Manage library members and their profiles</p>
                 </div>
-                <button className="btn-add" onClick={() => { setEditingReader(null); setShowModal(true); }}>
-                    + Register New Reader
-                </button>
             </div>
 
             <table className="management-table">
